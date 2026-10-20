@@ -19,7 +19,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", "learntrack-super-secret-ip-
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
-db = Database()
+db = Database(force_sqlite=True)
 analytics = AnalyticsManager(db)
 
 
