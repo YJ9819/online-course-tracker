@@ -1,0 +1,2909 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnTrack • Modern Student LMS & Course Tracker</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            900: '#312E81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        dialog::backdrop {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex overflow-hidden">
+
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ======================================================== -->
+    <!-- LEFT SIDEBAR                                             -->
+    <!-- ======================================================== -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none z-20">
+        <div>
+            <!-- Brand Logo -->
+            <div class="p-6 pb-4 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base text-white tracking-tight flex items-center gap-1.5">
+                        LearnTrack <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Pro</span>
+                    </h1>
+                    <p id="sidebarSubjectSubtitle" class="text-xs text-slate-400 font-medium">Student Learning System</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="px-3 py-4 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-indigo-600 text-white shadow-md shadow-indigo-600/20">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    <span>Overview</span>
+                </button>
+
+                <button onclick="switchTab('courses')" id="nav-courses" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    <span>Course Catalog</span>
+                    <span id="navCourseCountBadge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-semibold border border-slate-700">0</span>
+                </button>
+
+                <button onclick="switchTab('study-log')" id="nav-study-log" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>Study Hours Log</span>
+                </button>
+
+                <button onclick="switchTab('deadlines')" id="nav-deadlines" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+                    <span>Deadlines & Tasks</span>
+                    <span id="navDeadlineAlertBadge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold border border-rose-500/30 hidden">0</span>
+                </button>
+
+                <button onclick="switchTab('exams')" id="nav-exams" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="calendar-check" class="w-4 h-4"></i>
+                    <span>Exams & Revision</span>
+                    <span id="navExamAlertBadge" class="ml-auto text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30 hidden">0</span>
+                </button>
+
+                <button onclick="switchTab('certificates')" id="nav-certificates" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="award" class="w-4 h-4"></i>
+                    <span>Certificates & Notes</span>
+                </button>
+
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                    <span>Visual Analytics</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- Sidebar Footer (Authenticated User Profile & Logout) -->
+        <div class="p-4 border-t border-slate-800 bg-slate-900/60">
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2.5 overflow-hidden cursor-pointer group" onclick="openProfileModal()" title="Click to view/edit profile">
+                    <div class="relative shrink-0">
+                        <div id="sidebarUserAvatar" class="w-9 h-9 rounded-full bg-indigo-600 flex items-center justify-center text-white text-xs font-bold shadow-md border border-indigo-400/30">
+                            ST
+                        </div>
+                        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p id="sidebarUserName" class="text-xs font-bold text-white truncate group-hover:text-indigo-300 transition">Student</p>
+                        <p id="sidebarUserSubject" class="text-[11px] text-slate-400 truncate">Subject / Grade</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <button onclick="openProfileModal()" title="Edit Profile" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                        <i data-lucide="user-cog" class="w-3.5 h-3.5"></i>
+                    </button>
+                    <button onclick="handleLogout()" title="Logout" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition">
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Database Engine Status Indicator -->
+            <div class="px-2.5 py-2 rounded-lg bg-slate-800/80 border border-slate-700/60 flex items-center justify-between text-[11px]">
+                <span class="text-slate-400 flex items-center gap-1.5 font-medium">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="dbStatusBadgeText">{{ engine_name }}</span>
+                </span>
+                <span class="text-slate-500 font-mono text-[10px]">Strict Isolation</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ======================================================== -->
+    <!-- MAIN CONTENT AREA                                        -->
+    <!-- ======================================================== -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+
+        <!-- Top Header Navigation -->
+        <header class="h-16 border-b border-slate-200/80 bg-white/80 backdrop-blur-md px-8 flex items-center justify-between shrink-0 z-10">
+            <div class="flex items-center gap-3">
+                <h2 id="pageTitle" class="text-lg font-bold text-slate-900 tracking-tight">Executive Dashboard</h2>
+                <span class="text-xs text-slate-400 hidden sm:inline">•</span>
+                <span id="currentDateDisplay" class="text-xs text-slate-500 font-medium hidden sm:inline"></span>
+                <span id="headerGreeting" class="text-xs text-slate-500 font-medium hidden md:inline">• Welcome, <span id="headerGreetingName" class="font-bold text-indigo-600">Student</span> 👋</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button onclick="openModal('addCourseModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm shadow-indigo-600/20 transition-all duration-150">
+                    <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                    <span>Add Course</span>
+                </button>
+                <button onclick="openModal('logHoursModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-sm transition-all duration-150">
+                    <i data-lucide="timer" class="w-4 h-4 text-indigo-600"></i>
+                    <span>Log Hours</span>
+                </button>
+                <button onclick="openModal('addExamModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold shadow-sm transition-all duration-150">
+                    <i data-lucide="calendar-plus" class="w-4 h-4 text-amber-600"></i>
+                    <span>Schedule Exam</span>
+                </button>
+                <button onclick="refreshData(true)" title="Refresh Data" class="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Scrollable Body Content -->
+        <div class="flex-1 overflow-y-auto p-8 space-y-8">
+
+            <!-- ======================================================== -->
+            <!-- 1. DASHBOARD OVERVIEW TAB                                -->
+            <!-- ======================================================== -->
+            <section id="tab-dashboard" class="tab-content space-y-8">
+                
+                <!-- Urgent Deadline Alert Banner (if any) -->
+                <div id="urgentAlertBanner" class="hidden p-4 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-rose-900" id="urgentAlertTitle">Urgent Deadlines Detected!</h4>
+                            <p class="text-xs text-rose-700" id="urgentAlertSub">You have tasks that require immediate attention.</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('deadlines')" class="text-xs font-bold text-rose-700 hover:text-rose-900 underline px-3 py-1.5">
+                        View Tasks &rarr;
+                    </button>
+                </div>
+
+                <!-- Upcoming Exam Reminder Banner (if any) -->
+                <div id="urgentExamBanner" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                            <i data-lucide="bell-ring" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-amber-900" id="urgentExamTitle">Upcoming Exam Alert!</h4>
+                            <p class="text-xs text-amber-700" id="urgentExamSub">Prepare your high-priority revision topics.</p>
+                        </div>
+                    </div>
+                    <button onclick="switchTab('exams')" class="text-xs font-bold text-amber-800 hover:text-amber-950 underline px-3 py-1.5">
+                        Open Revision Checklist &rarr;
+                    </button>
+                </div>
+
+                <!-- 5 Executive KPI Metric Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Card 1: Courses -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:border-indigo-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Enrolled</span>
+                            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="book-marked" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-courses" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                            <span class="text-xs font-semibold text-slate-500">courses</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 flex items-center gap-1.5 font-medium truncate">
+                            <span id="kpi-completed-pill" class="text-emerald-600 font-bold">0 Done</span> • <span id="kpi-inprogress-pill">0 Active</span>
+                        </p>
+                    </div>
+
+                    <!-- Card 2: Hours Studied -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:border-violet-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Study Investment</span>
+                            <div class="w-9 h-9 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="clock-4" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-hours" class="text-3xl font-extrabold text-slate-900 tracking-tight">0.0</span>
+                            <span class="text-xs font-semibold text-slate-500">hours</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 font-medium truncate">
+                            Across <span id="kpi-sessions" class="font-bold text-slate-800">0</span> sessions
+                        </p>
+                    </div>
+
+                    <!-- Card 3: Average Progress -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:border-emerald-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Avg Progress</span>
+                            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-progress" class="text-3xl font-extrabold text-slate-900 tracking-tight">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+                            <div id="kpi-progressBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Deadlines -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:border-amber-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Deadlines</span>
+                            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-deadlines" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                            <span class="text-xs font-semibold text-slate-500">pending</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 font-medium truncate">
+                            Platform: <span id="kpi-topPlatform" class="font-bold text-slate-800">N/A</span>
+                        </p>
+                    </div>
+
+                    <!-- Card 5: Upcoming Exams (New!) -->
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm relative overflow-hidden group hover:border-rose-300 transition-all duration-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Target Exams</span>
+                            <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i data-lucide="award" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-exams" class="text-3xl font-extrabold text-slate-900 tracking-tight">0</span>
+                            <span class="text-xs font-semibold text-slate-500">upcoming</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 font-medium truncate">
+                            <button onclick="switchTab('exams')" class="text-indigo-600 hover:text-indigo-800 font-semibold">Priority Revision &rarr;</button>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Three-Column Grid: Active Courses + Deadlines Preview + Upcoming Exams -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Col 1: Active Course Progression -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900">Active Courses</h3>
+                                <p class="text-xs text-slate-500">Module-based progress tracking</p>
+                            </div>
+                            <button onclick="switchTab('courses')" class="text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition">
+                                All &rarr;
+                            </button>
+                        </div>
+                        <div id="overviewCoursesList" class="space-y-3.5 pt-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Col 2: Upcoming Deadlines -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900">Upcoming Deadlines</h3>
+                                <p class="text-xs text-slate-500">Assignments & milestones</p>
+                            </div>
+                            <button onclick="openModal('addDeadlineModal')" class="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div id="overviewDeadlinesList" class="space-y-3 pt-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Col 3: Upcoming Exams & Revision Countdown -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900">Upcoming Exams</h3>
+                                <p class="text-xs text-slate-500">Target countdown & checklist</p>
+                            </div>
+                            <button onclick="openModal('addExamModal')" class="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div id="overviewExamsList" class="space-y-3 pt-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Charts Preview Row -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-sm text-slate-900">Study Hours by Course</h3>
+                            <span class="text-xs text-slate-400">Total time recorded</span>
+                        </div>
+                        <div class="h-64 relative">
+                            <canvas id="overviewHoursChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-sm text-slate-900">Course Status Distribution</h3>
+                            <span class="text-xs text-slate-400">Completion ratio</span>
+                        </div>
+                        <div class="h-64 relative flex items-center justify-center">
+                            <canvas id="overviewStatusChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 2. COURSE CATALOG TAB                                    -->
+            <!-- ======================================================== -->
+            <section id="tab-courses" class="tab-content hidden space-y-6">
+                
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Search Input -->
+                        <div class="relative w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                            <input type="text" id="courseSearchInput" oninput="filterCourses()" placeholder="Search courses or instructor..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition">
+                        </div>
+
+                        <!-- Status Filter -->
+                        <select id="courseStatusFilter" onchange="filterCourses()" class="px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Statuses</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Not Started">Not Started</option>
+                            <option value="On Hold">On Hold</option>
+                        </select>
+
+                        <!-- Platform Filter -->
+                        <select id="coursePlatformFilter" onchange="filterCourses()" class="px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="">All Platforms</option>
+                            <option value="Coursera">Coursera</option>
+                            <option value="Udemy">Udemy</option>
+                            <option value="NPTEL">NPTEL</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="edX">edX</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button onclick="openModal('addCourseModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm shadow-indigo-600/20 transition">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Add Course
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Course Grid -->
+                <div id="coursesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Populated dynamically -->
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 3. STUDY HOURS LOG TAB                                   -->
+            <!-- ======================================================== -->
+            <section id="tab-study-log" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Study Session History</h3>
+                        <p class="text-xs text-slate-500">Track and review daily focused study sessions across your courses</p>
+                    </div>
+                    <button onclick="openModal('logHoursModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Record Session
+                    </button>
+                </div>
+
+                <!-- Study Logs Table -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-5">Date</th>
+                                    <th class="py-3 px-5">Course</th>
+                                    <th class="py-3 px-5">Platform</th>
+                                    <th class="py-3 px-5">Hours</th>
+                                    <th class="py-3 px-5">Concepts Covered</th>
+                                    <th class="py-3 px-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studyLogsTableBody" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 4. DEADLINES & TASKS TAB                                 -->
+            <!-- ======================================================== -->
+            <section id="tab-deadlines" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Assignment & Submission Milestones</h3>
+                        <p class="text-xs text-slate-500">Never miss a submission, project check-in, or quiz</p>
+                    </div>
+                    <button onclick="openModal('addDeadlineModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add Deadline
+                    </button>
+                </div>
+
+                <!-- Deadlines List Table -->
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-bold uppercase tracking-wider">
+                                <tr>
+                                    <th class="py-3 px-5 w-12 text-center">Status</th>
+                                    <th class="py-3 px-5">Task Name</th>
+                                    <th class="py-3 px-5">Course</th>
+                                    <th class="py-3 px-5">Due Date</th>
+                                    <th class="py-3 px-5">Urgency</th>
+                                    <th class="py-3 px-5 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deadlinesTableBody" class="divide-y divide-slate-100">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 5. EXAMS & PRIORITY REVISION TAB (NEW)                    -->
+            <!-- ======================================================== -->
+            <section id="tab-exams" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Exams & Automated Priority Revision</h3>
+                        <p class="text-xs text-slate-500">Target countdowns, syllabus scope, and algorithmic revision priority (Weak topics first!)</p>
+                    </div>
+                    <button onclick="openModal('addExamModal')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+                        <i data-lucide="calendar-plus" class="w-4 h-4"></i> Schedule Exam
+                    </button>
+                </div>
+
+                <!-- Exams Cards Grid -->
+                <div id="examsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <!-- Populated dynamically -->
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 6. CERTIFICATES & NOTES TAB                              -->
+            <!-- ======================================================== -->
+            <section id="tab-certificates" class="tab-content hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Left: Certificates Vault -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900">Certificate Credentials</h3>
+                                <p class="text-xs text-slate-500">Verified links to completion certificates</p>
+                            </div>
+                            <button onclick="openModal('addCertModal')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add
+                            </button>
+                        </div>
+                        <div id="certificatesList" class="space-y-3 pt-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Course Notes & Syllabus Notepad -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4 flex flex-col">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-base text-slate-900">Course Notes & Key Insights</h3>
+                                <p class="text-xs text-slate-500">Quick syllabus notes and important references</p>
+                            </div>
+                            <button onclick="saveSelectedCourseNotes()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i> Save Notes
+                            </button>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Select Course:</label>
+                            <select id="notesCourseSelect" onchange="loadCourseNotes(this.value)" class="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+
+                        <div class="flex-1 min-h-[220px]">
+                            <textarea id="courseNotesEditor" placeholder="Enter study notes, key algorithms, formulas, or module reminders here..." class="w-full h-full min-h-[220px] p-4 text-xs font-mono rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition resize-none"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ======================================================== -->
+            <!-- 7. VISUAL ANALYTICS TAB                                  -->
+            <!-- ======================================================== -->
+            <section id="tab-analytics" class="tab-content hidden space-y-6">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900">Informatics Practices (IP) Data Analytics</h3>
+                        <p class="text-xs text-slate-500">Pandas and Chart.js high-performance visual dashboards</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="renderAllCharts()" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Refresh Charts
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Major Grid Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- Chart 1: Study Hours per Course -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">Total Hours Studied per Course</h4>
+                                <p class="text-[11px] text-slate-400">Horizontal bar chart comparison</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-600 font-bold">Bar Chart</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="analyticsHoursChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Status Breakdown -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">Course Completion Status Ratio</h4>
+                                <p class="text-[11px] text-slate-400">Donut chart of course distribution</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 font-bold">Donut Chart</span>
+                        </div>
+                        <div class="h-72 flex items-center justify-center">
+                            <canvas id="analyticsStatusChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 3: Weekly / Daily Trend Line -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">Daily Study Hours Trend</h4>
+                                <p class="text-[11px] text-slate-400">Time-series area chart tracking consistency</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-violet-50 text-violet-600 font-bold">Line Chart</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="analyticsTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Chart 4: Platform Breakdown -->
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">Courses Enrolled by Platform</h4>
+                                <p class="text-[11px] text-slate-400">Coursera, Udemy, NPTEL, YouTube</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-600 font-bold">Column Chart</span>
+                        </div>
+                        <div class="h-72">
+                            <canvas id="analyticsPlatformChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- ======================================================== -->
+    <!-- MODALS & DIALOGS (<dialog>)                              -->
+    <!-- ======================================================== -->
+
+    <!-- 1. Add / Edit Course Modal -->
+    <dialog id="addCourseModal" class="p-0 rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900" id="courseModalTitle">Add New Course</h3>
+                <button onclick="closeModal('addCourseModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="courseForm" onsubmit="handleCourseSubmit(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="editCourseId">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Course Title *</label>
+                    <input type="text" id="courseNameInput" required placeholder="e.g. Data Structures & Algorithms in Python" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Platform *</label>
+                        <select id="coursePlatformInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Coursera">Coursera</option>
+                            <option value="Udemy">Udemy</option>
+                            <option value="NPTEL">NPTEL</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="edX">edX</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Instructor / Provider</label>
+                        <input type="text" id="courseInstructorInput" placeholder="e.g. Prof. Andrew Ng" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Start Date</label>
+                        <input type="date" id="courseStartDateInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Target End Date</label>
+                        <input type="date" id="courseEndDateInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Status Override</label>
+                        <select id="courseStatusInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="On Hold">On Hold (Pause)</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <p class="text-[10px] text-slate-400 mt-0.5">Note: Status updates automatically as you complete modules.</p>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Priority</label>
+                        <select id="coursePriorityInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="Medium">Medium Priority</option>
+                            <option value="High">High Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Course URL / Portal Link</label>
+                    <input type="url" id="courseLinkInput" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Syllabus Overview / Notes</label>
+                    <textarea id="courseNotesInput" rows="2" placeholder="Key topics covered, prerequisites..." class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addCourseModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitCourseBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i> Save Course
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 2. Course Modules Management Modal (Full Curriculum + Checkboxes) -->
+    <dialog id="courseModulesModal" class="p-0 rounded-2xl shadow-2xl max-w-2xl w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-5 max-h-[88vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
+                <div class="overflow-hidden">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="modulesModalPlatformBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-indigo-50 text-indigo-700 border-indigo-200">Platform</span>
+                        <span id="modulesModalStatusBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border bg-slate-100 text-slate-700 border-slate-200">Status</span>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 truncate" id="modulesModalCourseTitle">Course Modules & Syllabus</h3>
+                    <p class="text-xs text-slate-500">Course progress is automatically calculated from module completions.</p>
+                </div>
+                <button onclick="closeModal('courseModulesModal')" class="text-slate-400 hover:text-slate-600 p-1 shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Course Progress Summary Header Bar -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-extrabold text-sm" id="modulesModalProgressPercent">
+                        0%
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-800" id="modulesModalRatioText">0 of 0 modules completed</div>
+                        <p class="text-[11px] text-slate-500">Check off modules as you complete lectures and assignments</p>
+                    </div>
+                </div>
+                <div class="w-32 bg-slate-200 rounded-full h-2 overflow-hidden shrink-0">
+                    <div id="modulesModalProgressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content: Add Module Form + Modules List -->
+            <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+                
+                <!-- Add New Module Accordion / Form -->
+                <div class="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-indigo-600"></i> Add Next Module / Topic
+                        </h4>
+                    </div>
+                    <form id="addModuleForm" onsubmit="handleAddModuleSubmit(event)" class="space-y-3 text-xs">
+                        <input type="hidden" id="currentModuleCourseId">
+                        <div>
+                            <input type="text" id="newModuleTitleInput" required placeholder="Module title (e.g. Chapter 4: SQL Queries & Aggregations)" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <input type="text" id="newModuleKeyPointsInput" placeholder="Key points / formulas (e.g. GROUP BY, HAVING, COUNT)" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div class="flex items-center gap-4 px-1 py-1">
+                                <label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-semibold select-none">
+                                    <input type="checkbox" id="newModuleImportantInput" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
+                                    <span>⭐ Important</span>
+                                </label>
+                                <label class="flex items-center gap-1.5 cursor-pointer text-amber-700 font-semibold select-none">
+                                    <input type="checkbox" id="newModuleWeakInput" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500">
+                                    <span>⚠️ Weak Topic</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Reference Link Inline (optional) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="text" id="newModuleLinkLabel" placeholder="Link label (e.g. Official Docs, Lecture Video)" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="url" id="newModuleLinkUrl" placeholder="https://..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div>
+                            <textarea id="newModuleNotesInput" rows="1" placeholder="Optional notes, formulas, or reminders for this topic..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="submit" id="addModuleSubmitBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition flex items-center gap-1.5 shadow-sm">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Module
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Existing Modules List -->
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Curriculum Modules</h4>
+                    <div id="courseModulesList" class="space-y-2.5">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs shrink-0">
+                <span class="text-slate-400 font-medium">Click on any module checkbox to update completion state</span>
+                <button type="button" onclick="closeModal('courseModulesModal')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">Close</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 3. Edit Module Modal -->
+    <dialog id="editModuleModal" class="p-0 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Edit Module</h3>
+                <button onclick="closeModal('editModuleModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="editModuleForm" onsubmit="handleEditModuleSubmit(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="editModuleId">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Module Title *</label>
+                    <input type="text" id="editModuleTitleInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Key Points / Concepts</label>
+                    <input type="text" id="editModuleKeyPointsInput" placeholder="e.g. Recursion, Base Case, Memoization" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="flex items-center gap-5 p-2 bg-slate-50 rounded-xl border border-slate-100">
+                    <label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-semibold">
+                        <input type="checkbox" id="editModuleImportantInput" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
+                        <span>⭐ Important Concept</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 cursor-pointer text-amber-700 font-semibold">
+                        <input type="checkbox" id="editModuleWeakInput" class="w-4 h-4 rounded text-amber-600 focus:ring-amber-500">
+                        <span>⚠️ Weak Topic</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Topic Notes / Takeaways</label>
+                    <textarea id="editModuleNotesInput" rows="2" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block font-semibold text-slate-700">Reference Links</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="editModuleLinkLabel" placeholder="Link label" class="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200">
+                        <input type="url" id="editModuleLinkUrl" placeholder="https://..." class="w-full px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('editModuleModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="editModuleSubmitBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 4. Schedule / Edit Exam Modal -->
+    <dialog id="addExamModal" class="p-0 rounded-2xl shadow-2xl max-w-lg w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900" id="examModalTitle">Schedule Target Exam</h3>
+                <button onclick="closeModal('addExamModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="examForm" onsubmit="handleExamSubmit(event)" class="space-y-3.5 text-xs">
+                <input type="hidden" id="editExamId">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Target Course *</label>
+                    <select id="examCourseSelect" required onchange="populateExamModuleCheckboxes(this.value)" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Exam / Test Name *</label>
+                    <input type="text" id="examNameInput" required placeholder="e.g. CBSE Informatics Practices Board Practical" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Exam Date *</label>
+                        <input type="date" id="examDateInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Exam Time</label>
+                        <input type="text" id="examTimeInput" placeholder="e.g. 10:30 AM" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Syllabus Scope & Topics</label>
+                    <textarea id="examSyllabusInput" rows="2" placeholder="e.g. Unit 1: Data Handling with Pandas, Unit 2: SQL & MySQL connectivity..." class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+                </div>
+
+                <!-- Covered Modules Selection for this Exam -->
+                <div class="space-y-1.5">
+                    <label class="block font-semibold text-slate-700">Covered Modules for Automated Revision</label>
+                    <p class="text-[11px] text-slate-400">Select which course modules are included in this exam's revision plan:</p>
+                    <div id="examCoveredModulesContainer" class="max-h-36 overflow-y-auto p-2.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                        <p class="text-[11px] text-slate-400">Select a course to view modules.</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addExamModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitExamBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition flex items-center gap-1.5">
+                        <i data-lucide="check" class="w-4 h-4"></i> Save Exam
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 5. Priority Revision Checklist Modal (What to Revise) -->
+    <dialog id="examRevisionModal" class="p-0 rounded-2xl shadow-2xl max-w-xl w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-5 max-h-[88vh] flex flex-col">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
+                <div class="overflow-hidden">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="revisionExamCountdownBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full border">Countdown</span>
+                        <span id="revisionExamCourseBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-md border bg-slate-100 text-slate-700">Course</span>
+                    </div>
+                    <h3 class="text-base font-extrabold text-slate-900 truncate" id="revisionExamTitle">What to Revise Checklist</h3>
+                    <p class="text-xs text-slate-500" id="revisionExamSub">Automated priority ordering: Weak Topics &rarr; Important &rarr; Incomplete &rarr; Done</p>
+                </div>
+                <button onclick="closeModal('examRevisionModal')" class="text-slate-400 hover:text-slate-600 p-1 shrink-0">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Revision Progress Summary -->
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-extrabold text-sm" id="revisionSummaryPct">
+                        0%
+                    </div>
+                    <div>
+                        <div class="text-xs font-bold text-slate-800" id="revisionSummaryCount">0 of 0 topics revised</div>
+                        <p class="text-[11px] text-slate-500">Check off topics as you review formulas, code, and notes</p>
+                    </div>
+                </div>
+                <div class="w-32 bg-slate-200 rounded-full h-2 overflow-hidden shrink-0">
+                    <div id="revisionSummaryBar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Priority Revision Items List -->
+            <div class="flex-1 overflow-y-auto space-y-2.5 pr-1" id="revisionChecklistItemsContainer">
+                <!-- Populated dynamically -->
+            </div>
+
+            <!-- Footer -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs shrink-0">
+                <span class="text-slate-400 font-medium">Prioritize weak & important topics before exam day</span>
+                <button type="button" onclick="closeModal('examRevisionModal')" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">Done</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- 6. Record Study Hours Modal -->
+    <dialog id="logHoursModal" class="p-0 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Record Study Session</h3>
+                <button onclick="closeModal('logHoursModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="studyLogForm" onsubmit="handleStudyLogSubmit(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Course *</label>
+                    <select id="logCourseSelect" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Date *</label>
+                        <input type="date" id="logDateInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Hours Spent *</label>
+                        <input type="number" id="logHoursInput" step="0.25" min="0.25" max="24" required placeholder="e.g. 1.5" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Concepts / Topics Covered</label>
+                    <input type="text" id="logTopicInput" placeholder="e.g. Matplotlib Pyplot bar charts & styling" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('logHoursModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitStudyLogBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Log Session</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 7. Add Deadline Modal -->
+    <dialog id="addDeadlineModal" class="p-0 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Add Deadline / Task</h3>
+                <button onclick="closeModal('addDeadlineModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="deadlineForm" onsubmit="handleDeadlineSubmit(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Course *</label>
+                    <select id="deadlineCourseSelect" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Task / Assignment Name *</label>
+                    <input type="text" id="deadlineTaskInput" required placeholder="e.g. Submit Informatics Practices Practical Project File" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Due Date *</label>
+                    <input type="date" id="deadlineDateInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addDeadlineModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitDeadlineBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Deadline</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 8. Add Certificate Modal -->
+    <dialog id="addCertModal" class="p-0 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Add Certificate Link</h3>
+                <button onclick="closeModal('addCertModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="certForm" onsubmit="handleCertSubmit(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Course *</label>
+                    <select id="certCourseSelect" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Certificate URL *</label>
+                    <input type="url" id="certUrlInput" required placeholder="https://coursera.org/verify/..." class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Issue Date</label>
+                        <input type="date" id="certDateInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Grade / Distinction</label>
+                        <input type="text" id="certGradeInput" placeholder="e.g. 98% with Honors" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('addCertModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitCertBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Certificate</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- 9. Edit Profile Modal (<dialog>) -->
+    <dialog id="editProfileModal" class="p-0 rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 backdrop:bg-slate-950/60">
+        <div class="bg-white p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Student Profile Settings</h3>
+                <button onclick="closeModal('editProfileModal')" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form onsubmit="handleEditProfileSubmit(event)" class="space-y-3.5 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Full Name *</label>
+                    <input type="text" id="editProfileNameInput" required class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Subject / Stream *</label>
+                    <input type="text" id="editProfileSubjectInput" required list="subjectSuggestions" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Roll No / ID</label>
+                        <input type="text" id="editProfileStudentIdInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Email</label>
+                        <input type="email" id="editProfileEmailInput" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1.5">Avatar Accent Color</label>
+                    <div class="flex items-center gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#4F46E5" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-indigo-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#059669" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-emerald-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#DC2626" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-rose-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#D97706" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-amber-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#0284C7" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-sky-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="editAvatarColor" value="#7C3AED" class="sr-only peer">
+                            <span class="w-6 h-6 rounded-full bg-violet-600 block peer-checked:ring-2 peer-checked:ring-slate-900 peer-checked:ring-offset-2 transition"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('editProfileModal')" class="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition">Cancel</button>
+                    <button type="submit" id="submitEditProfileBtn" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition">Save Profile</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- ======================================================== -->
+    <!-- 10. REAL AUTHENTICATION OVERLAY (Sign In / Register)    -->
+    <!-- ======================================================== -->
+    <div id="authOverlay" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 hidden">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-white relative overflow-hidden">
+            <!-- Decorative Glow Accents -->
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-violet-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="relative z-10 space-y-6">
+                <!-- Header -->
+                <div class="text-center space-y-2">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white mx-auto shadow-lg shadow-indigo-500/30">
+                        <i data-lucide="graduation-cap" class="w-8 h-8"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-white tracking-tight">LearnTrack Pro</h3>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto">Student Learning Management & Course Progress System</p>
+                </div>
+
+                <!-- Auth Navigation Tabs: Sign In vs Register -->
+                <div class="flex p-1 rounded-xl bg-slate-800/80 border border-slate-700/60 text-xs font-semibold">
+                    <button type="button" id="authTabLogin" onclick="switchAuthMode('login')" class="flex-1 py-2 rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-sm">
+                        Sign In
+                    </button>
+                    <button type="button" id="authTabRegister" onclick="switchAuthMode('register')" class="flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200">
+                        Create Account
+                    </button>
+                </div>
+
+                <!-- Error Message Alert Box -->
+                <div id="authErrorAlert" class="hidden p-3 rounded-xl bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-medium flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-rose-400"></i>
+                    <span id="authErrorText">Error message</span>
+                </div>
+
+                <!-- Form 1: Sign In -->
+                <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>Username or Email *</span>
+                        </label>
+                        <input type="text" id="loginUsernameInput" required placeholder="e.g. yugjain or student@college.edu" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                            <i data-lucide="lock" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>Password *</span>
+                        </label>
+                        <input type="password" id="loginPasswordInput" required placeholder="••••••••" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition text-sm">
+                    </div>
+
+                    <button type="submit" id="loginSubmitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+                <!-- Form 2: Create Account -->
+                <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-3.5 text-xs hidden">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Full Name *</label>
+                            <input type="text" id="regNameInput" required placeholder="e.g. Yug Jain" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Username *</label>
+                            <input type="text" id="regUsernameInput" required minlength="3" placeholder="e.g. yugjain" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Password *</label>
+                            <input type="password" id="regPasswordInput" required minlength="4" placeholder="Min 4 chars" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Subject / Stream *</label>
+                            <input type="text" id="regSubjectInput" required list="subjectSuggestions" placeholder="e.g. Informatics Practices" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Roll No / ID</label>
+                            <input type="text" id="regRollInput" placeholder="e.g. 12-IP-042" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-300 mb-1">Email (Optional)</label>
+                            <input type="email" id="regEmailInput" placeholder="student@school.edu" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1.5">Avatar Theme Color</label>
+                        <div class="flex items-center gap-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#4F46E5" checked class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-indigo-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#059669" class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-emerald-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#DC2626" class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-rose-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#D97706" class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-amber-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#0284C7" class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-sky-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="regAvatarColor" value="#7C3AED" class="sr-only peer">
+                                <span class="w-6 h-6 rounded-full bg-violet-600 block peer-checked:ring-2 peer-checked:ring-white peer-checked:ring-offset-2 peer-checked:ring-offset-slate-900 transition"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="registerSubmitBtn" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold text-sm shadow-lg shadow-indigo-600/30 transition-all duration-200 flex items-center justify-center gap-2 mt-2">
+                        <span>Create Account & Start Learning</span>
+                        <i data-lucide="check" class="w-4 h-4"></i>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Datalist -->
+    <datalist id="subjectSuggestions">
+        <option value="Informatics Practices (IP)">
+        <option value="Computer Science (CS)">
+        <option value="Information Technology (IT)">
+        <option value="Data Science & Artificial Intelligence">
+        <option value="B.Tech Computer Science">
+        <option value="Web Development & Full Stack">
+    </datalist>
+
+    <!-- ======================================================== -->
+    <!-- CLIENT JAVASCRIPT APPLICATION LOGIC                      -->
+    <!-- ======================================================== -->
+    <script>
+        // Global State Cache
+        let currentUser = null;
+        let coursesCache = [];
+        let studyLogsCache = [];
+        let deadlinesCache = [];
+        let examsCache = [];
+        let certificatesCache = [];
+        let currentModulesCourse = null;
+        let chartInstances = {};
+
+        // Platform Colors Mapping
+        const platformBadgeColors = {
+            'Coursera': 'bg-blue-50 text-blue-700 border-blue-200',
+            'Udemy': 'bg-purple-50 text-purple-700 border-purple-200',
+            'NPTEL': 'bg-amber-50 text-amber-700 border-amber-200',
+            'YouTube': 'bg-red-50 text-red-700 border-red-200',
+            'edX': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            'Other': 'bg-slate-100 text-slate-700 border-slate-200'
+        };
+
+        const statusPillColors = {
+            'Completed': 'bg-emerald-100 text-emerald-800 border-emerald-200',
+            'In Progress': 'bg-indigo-100 text-indigo-800 border-indigo-200',
+            'Not Started': 'bg-slate-100 text-slate-700 border-slate-200',
+            'On Hold': 'bg-amber-100 text-amber-800 border-amber-200'
+        };
+
+        // Initialize Page
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            const now = new Date();
+            document.getElementById('currentDateDisplay').innerText = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('logDateInput').value = now.toISOString().split('T')[0];
+            document.getElementById('deadlineDateInput').value = now.toISOString().split('T')[0];
+            document.getElementById('certDateInput').value = now.toISOString().split('T')[0];
+            document.getElementById('examDateInput').value = now.toISOString().split('T')[0];
+
+            checkAuthentication();
+        });
+
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('tab-' + tabId);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                btn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 transition-all duration-200";
+            });
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = "nav-item w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 bg-indigo-600 text-white shadow-md shadow-indigo-600/20";
+            }
+
+            const titles = {
+                'dashboard': 'Executive Dashboard',
+                'courses': 'Course Catalog & Modules',
+                'study-log': 'Daily Study Hours Log',
+                'deadlines': 'Assignment Deadlines & Tasks',
+                'exams': 'Target Exams & Priority Revision',
+                'certificates': 'Certificates & Course Notes',
+                'analytics': 'Informatics Practices (IP) Visual Analytics'
+            };
+            document.getElementById('pageTitle').innerText = titles[tabId] || 'Dashboard';
+
+            if (tabId === 'analytics') {
+                renderAllCharts();
+            }
+            lucide.createIcons();
+        }
+
+        // Modal Helpers
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.showModal();
+            lucide.createIcons();
+        }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.close();
+        }
+
+        // Toast Messages
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-slate-900 text-white border-slate-700' : 'bg-rose-600 text-white border-rose-500';
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            toast.className = `${bgClass} border shadow-xl rounded-xl px-4 py-3 text-xs font-semibold flex items-center gap-2.5 transform transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto`;
+            toast.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4 text-emerald-400"></i> <span>${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-4');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // Helper: Anti-duplicate button disabling
+        async function runWithButton(btn, asyncFn) {
+            if (!btn) return asyncFn();
+            const originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+            try {
+                return await asyncFn();
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+                btn.innerHTML = originalHtml;
+                lucide.createIcons();
+            }
+        }
+
+        // ========================================================
+        // AUTHENTICATION & SESSION HANDLING
+        // ========================================================
+
+        async function checkAuthentication() {
+            try {
+                const res = await fetch('/api/auth/me');
+                const data = await res.json();
+                if (data.authenticated && data.user) {
+                    applyUserProfile(data.user);
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    refreshData();
+                } else {
+                    currentUser = null;
+                    document.getElementById('authOverlay').classList.remove('hidden');
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                console.error("Auth check failed", err);
+                document.getElementById('authOverlay').classList.remove('hidden');
+            }
+        }
+
+        function switchAuthMode(mode) {
+            const tabLogin = document.getElementById('authTabLogin');
+            const tabReg = document.getElementById('authTabRegister');
+            const formLogin = document.getElementById('loginForm');
+            const formReg = document.getElementById('registerForm');
+            const errAlert = document.getElementById('authErrorAlert');
+            errAlert.classList.add('hidden');
+
+            if (mode === 'login') {
+                tabLogin.className = "flex-1 py-2 rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-sm";
+                tabReg.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200";
+                formLogin.classList.remove('hidden');
+                formReg.classList.add('hidden');
+            } else {
+                tabReg.className = "flex-1 py-2 rounded-lg transition-all duration-200 bg-indigo-600 text-white shadow-sm";
+                tabLogin.className = "flex-1 py-2 rounded-lg text-slate-400 hover:text-white transition-all duration-200";
+                formReg.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+            lucide.createIcons();
+        }
+
+        function showAuthError(msg) {
+            const errAlert = document.getElementById('authErrorAlert');
+            const errText = document.getElementById('authErrorText');
+            errText.innerText = msg;
+            errAlert.classList.remove('hidden');
+        }
+
+        async function handleLoginSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginSubmitBtn');
+            const username = document.getElementById('loginUsernameInput').value.trim();
+            const password = document.getElementById('loginPasswordInput').value;
+
+            await runWithButton(btn, async () => {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    applyUserProfile(data.user);
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    showToast(`Welcome back, ${data.user.name}!`);
+                    refreshData();
+                } else {
+                    showAuthError(data.error || 'Login failed. Please check your credentials.');
+                }
+            });
+        }
+
+        async function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerSubmitBtn');
+            const payload = {
+                name: document.getElementById('regNameInput').value.trim(),
+                username: document.getElementById('regUsernameInput').value.trim(),
+                password: document.getElementById('regPasswordInput').value,
+                subject: document.getElementById('regSubjectInput').value.trim(),
+                roll_no: document.getElementById('regRollInput').value.trim(),
+                email: document.getElementById('regEmailInput').value.trim(),
+                avatar_color: (document.querySelector('input[name="regAvatarColor"]:checked') || {}).value || '#4F46E5'
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    applyUserProfile(data.user);
+                    document.getElementById('authOverlay').classList.add('hidden');
+                    showToast(`Account created! Welcome, ${data.user.name}.`);
+                    refreshData();
+                } else {
+                    showAuthError(data.error || 'Registration failed. Please check inputs.');
+                }
+            });
+        }
+
+        async function handleLogout() {
+            if (confirm('Are you sure you want to log out of your session?')) {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                currentUser = null;
+                document.getElementById('loginUsernameInput').value = '';
+                document.getElementById('loginPasswordInput').value = '';
+                document.getElementById('authOverlay').classList.remove('hidden');
+                switchAuthMode('login');
+                showToast('You have been logged out.');
+            }
+        }
+
+        function getInitials(name) {
+            if (!name) return 'ST';
+            const parts = name.trim().split(/\s+/);
+            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        function applyUserProfile(user) {
+            if (!user) return;
+            currentUser = user;
+            const name = user.name || 'Student';
+            const subject = user.subject || 'Online Learning';
+            const initials = getInitials(name);
+            const color = user.avatar_color || '#4F46E5';
+
+            document.getElementById('sidebarUserName').innerText = name;
+            document.getElementById('sidebarUserSubject').innerText = subject;
+            document.getElementById('sidebarSubjectSubtitle').innerText = subject;
+            document.getElementById('headerGreetingName').innerText = name;
+
+            const avatarEl = document.getElementById('sidebarUserAvatar');
+            if (avatarEl) {
+                avatarEl.innerText = initials;
+                avatarEl.style.backgroundColor = color;
+            }
+        }
+
+        function openProfileModal() {
+            if (currentUser) {
+                document.getElementById('editProfileNameInput').value = currentUser.name || '';
+                document.getElementById('editProfileSubjectInput').value = currentUser.subject || '';
+                document.getElementById('editProfileStudentIdInput').value = currentUser.roll_no || '';
+                document.getElementById('editProfileEmailInput').value = currentUser.email || '';
+                const colorRadios = document.querySelectorAll('input[name="editAvatarColor"]');
+                colorRadios.forEach(r => {
+                    if (r.value === currentUser.avatar_color) r.checked = true;
+                });
+            }
+            openModal('editProfileModal');
+        }
+
+        async function handleEditProfileSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitEditProfileBtn');
+            const colorRadio = document.querySelector('input[name="editAvatarColor"]:checked');
+            const payload = {
+                name: document.getElementById('editProfileNameInput').value.trim(),
+                subject: document.getElementById('editProfileSubjectInput').value.trim(),
+                roll_no: document.getElementById('editProfileStudentIdInput').value.trim(),
+                email: document.getElementById('editProfileEmailInput').value.trim(),
+                avatar_color: colorRadio ? colorRadio.value : (currentUser ? currentUser.avatar_color : '#4F46E5')
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success && data.user) {
+                    applyUserProfile(data.user);
+                    closeModal('editProfileModal');
+                    showToast('Profile updated successfully!');
+                }
+            });
+        }
+
+        // ========================================================
+        // DATA FETCHING & SYNCHRONIZATION
+        // ========================================================
+
+        async function refreshData(triggerToast = false) {
+            try {
+                // 1. Fetch KPIs
+                const kpiRes = await fetch('/api/kpi');
+                if (kpiRes.status === 401) { checkAuthentication(); return; }
+                const kpiData = await kpiRes.json();
+                updateKPICards(kpiData);
+
+                // 2. Fetch Courses
+                const cRes = await fetch('/api/courses');
+                coursesCache = await cRes.json();
+                renderCourses(coursesCache);
+                populateCourseDropdowns(coursesCache);
+
+                // 3. Fetch Study Logs
+                const sRes = await fetch('/api/study-logs');
+                studyLogsCache = await sRes.json();
+                renderStudyLogs(studyLogsCache);
+
+                // 4. Fetch Deadlines
+                const dRes = await fetch('/api/deadlines');
+                deadlinesCache = await dRes.json();
+                renderDeadlines(deadlinesCache);
+
+                // 5. Fetch Exams
+                const eRes = await fetch('/api/exams');
+                examsCache = await eRes.json();
+                renderExams(examsCache);
+
+                // 6. Fetch Certificates
+                const certRes = await fetch('/api/certificates');
+                certificatesCache = await certRes.json();
+                renderCertificates(certificatesCache);
+
+                // 7. Refresh Charts
+                renderOverviewCharts();
+
+                if (triggerToast) showToast('All records updated.');
+            } catch (err) {
+                console.error("Data refresh failed", err);
+            }
+        }
+
+        function updateKPICards(kpis) {
+            document.getElementById('kpi-courses').innerText = kpis.total_courses || 0;
+            document.getElementById('navCourseCountBadge').innerText = kpis.total_courses || 0;
+            document.getElementById('kpi-completed-pill').innerText = `${kpis.completed_courses || 0} Done`;
+            document.getElementById('kpi-inprogress-pill').innerText = `${kpis.in_progress_courses || 0} Active`;
+
+            document.getElementById('kpi-hours').innerText = (kpis.total_hours || 0).toFixed(1);
+            document.getElementById('kpi-sessions').innerText = kpis.total_sessions || 0;
+
+            document.getElementById('kpi-progress').innerText = `${kpis.avg_progress || 0}%`;
+            document.getElementById('kpi-progressBar').style.width = `${Math.min(100, kpis.avg_progress || 0)}%`;
+
+            document.getElementById('kpi-deadlines').innerText = kpis.pending_deadlines || 0;
+            document.getElementById('kpi-topPlatform').innerText = kpis.most_used_platform || 'N/A';
+
+            document.getElementById('kpi-exams').innerText = kpis.upcoming_exams || 0;
+
+            // Nav Badges
+            const dlBadge = document.getElementById('navDeadlineAlertBadge');
+            if (kpis.pending_deadlines > 0) {
+                dlBadge.innerText = kpis.pending_deadlines;
+                dlBadge.classList.remove('hidden');
+            } else {
+                dlBadge.classList.add('hidden');
+            }
+
+            const exBadge = document.getElementById('navExamAlertBadge');
+            if (kpis.upcoming_exams > 0) {
+                exBadge.innerText = kpis.upcoming_exams;
+                exBadge.classList.remove('hidden');
+            } else {
+                exBadge.classList.add('hidden');
+            }
+        }
+
+        // ========================================================
+        // RENDER COURSES & MODULES
+        // ========================================================
+
+        function renderCourses(courses) {
+            const grid = document.getElementById('coursesGrid');
+            const overviewList = document.getElementById('overviewCoursesList');
+            grid.innerHTML = '';
+            overviewList.innerHTML = '';
+
+            if (courses.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-xs font-semibold">No courses in catalog yet. Click "+ Add Course" to get started.</div>`;
+                overviewList.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No active courses yet. Add your first course!</p>`;
+                return;
+            }
+
+            // Overview list (active courses)
+            const activeCourses = courses.filter(c => c.status === 'In Progress').slice(0, 4);
+            if (activeCourses.length === 0) {
+                overviewList.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No courses currently in progress.</p>`;
+            } else {
+                activeCourses.forEach(c => {
+                    const row = document.createElement('div');
+                    row.className = 'flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200/60 hover:bg-slate-100/60 transition cursor-pointer';
+                    row.onclick = () => openCourseModulesModal(c.course_id);
+                    row.innerHTML = `
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${platformBadgeColors[c.platform] || platformBadgeColors['Other']} shrink-0">${c.platform}</span>
+                            <div class="overflow-hidden">
+                                <h4 class="text-xs font-bold text-slate-800 truncate">${c.course_name}</h4>
+                                <p class="text-[11px] text-slate-400 truncate">${c.completed_modules || 0}/${c.total_modules || 0} modules completed</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2.5 shrink-0">
+                            <div class="w-16 bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-indigo-600 h-1.5 rounded-full" style="width: ${c.progress_percent}%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-700 w-8 text-right">${c.progress_percent}%</span>
+                        </div>
+                    `;
+                    overviewList.appendChild(row);
+                });
+            }
+
+            // Full Courses Catalog Grid
+            courses.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-300 transition-all duration-200 space-y-4';
+                
+                const pColor = platformBadgeColors[c.platform] || platformBadgeColors['Other'];
+                const sColor = statusPillColors[c.status] || statusPillColors['Not Started'];
+                const priorityBadge = c.priority === 'High' ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-200 font-bold">High</span>' : (c.priority === 'Low' ? '<span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 font-bold">Low</span>' : '<span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-200 font-bold">Medium</span>');
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg border ${pColor}">${c.platform}</span>
+                            <div class="flex items-center gap-1.5">
+                                ${priorityBadge}
+                                <span class="text-[11px] font-bold px-2 py-0.5 rounded-full border ${sColor}">${c.status}</span>
+                            </div>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 leading-snug tracking-tight mb-1">${c.course_name}</h4>
+                        <p class="text-xs text-slate-500 font-medium mb-3 flex items-center gap-1">
+                            <i data-lucide="user" class="w-3.5 h-3.5 text-slate-400"></i> ${c.instructor || 'Independent Study'}
+                        </p>
+
+                        <!-- Module-Based Progress Indicator -->
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-400 font-medium">${c.completed_modules || 0} of ${c.total_modules || 0} modules</span>
+                                <span class="font-bold text-indigo-600">${c.progress_percent}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                <div class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: ${c.progress_percent}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Action: View Modules / Syllabus -->
+                        <div class="pt-3">
+                            <button onclick="openCourseModulesModal(${c.course_id})" class="w-full py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition flex items-center justify-center gap-2">
+                                <i data-lucide="list-checks" class="w-3.5 h-3.5"></i>
+                                <span>View Modules & Syllabus (${c.total_modules || 0})</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-3 h-3"></i>
+                            <span>${c.end_date || 'No target date'}</span>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            ${c.course_link ? `<a href="${c.course_link}" target="_blank" title="Open Portal" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition"><i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>` : ''}
+                            <button onclick="editCourse(${c.course_id})" title="Edit" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteCourse(${c.course_id}, '${escapeHtml(c.course_name)}')" title="Delete" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        function filterCourses() {
+            const search = document.getElementById('courseSearchInput').value.toLowerCase().trim();
+            const status = document.getElementById('courseStatusFilter').value;
+            const platform = document.getElementById('coursePlatformFilter').value;
+
+            const filtered = coursesCache.filter(c => {
+                const matchesSearch = !search || c.course_name.toLowerCase().includes(search) || (c.instructor && c.instructor.toLowerCase().includes(search));
+                const matchesStatus = !status || c.status === status;
+                const matchesPlatform = !platform || c.platform === platform;
+                return matchesSearch && matchesStatus && matchesPlatform;
+            });
+            renderCourses(filtered);
+        }
+
+        // ========================================================
+        // MODULES MODAL & CHECKLIST (CURRICULUM)
+        // ========================================================
+
+        async function openCourseModulesModal(courseId) {
+            currentModulesCourse = coursesCache.find(c => c.course_id == courseId);
+            document.getElementById('currentModuleCourseId').value = courseId;
+            document.getElementById('addModuleForm').reset();
+            
+            await reloadCourseModules(courseId);
+            openModal('courseModulesModal');
+        }
+
+        async function reloadCourseModules(courseId) {
+            const res = await fetch(`/api/courses/${courseId}/modules`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const course = data.course;
+            const modules = data.modules;
+
+            // Update Header & Progress in Modal
+            document.getElementById('modulesModalCourseTitle').innerText = course.course_name;
+            document.getElementById('modulesModalPlatformBadge').innerText = course.platform;
+            document.getElementById('modulesModalStatusBadge').innerText = course.status;
+            document.getElementById('modulesModalProgressPercent').innerText = `${course.progress_percent}%`;
+            document.getElementById('modulesModalRatioText').innerText = `${course.completed_modules || 0} of ${course.total_modules || 0} modules completed`;
+            document.getElementById('modulesModalProgressBar').style.width = `${course.progress_percent}%`;
+
+            const listEl = document.getElementById('courseModulesList');
+            listEl.innerHTML = '';
+
+            if (modules.length === 0) {
+                listEl.innerHTML = `<div class="p-6 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs font-semibold">No modules added yet. Use the form above to add your syllabus topics!</div>`;
+                return;
+            }
+
+            modules.forEach((m, idx) => {
+                const isDone = !!m.is_completed;
+                const item = document.createElement('div');
+                item.className = `p-3.5 rounded-xl border transition space-y-2 ${isDone ? 'bg-slate-50/70 border-slate-200/60' : 'bg-white border-slate-200 shadow-sm'}`;
+
+                // Flags
+                let flagsHtml = '';
+                if (m.is_weak) {
+                    flagsHtml += `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">⚠️ Weak Topic</span>`;
+                }
+                if (m.is_important) {
+                    flagsHtml += `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">⭐ Important</span>`;
+                }
+                if (isDone && m.completed_date) {
+                    flagsHtml += `<span class="text-[11px] text-emerald-600 font-semibold flex items-center gap-1"><i data-lucide="check-check" class="w-3.5 h-3.5"></i> ${m.completed_date}</span>`;
+                }
+
+                // Reference Links Pill List
+                let linksHtml = '';
+                if (m.reference_links && m.reference_links.length > 0) {
+                    linksHtml = '<div class="flex flex-wrap gap-1.5 pt-1">';
+                    m.reference_links.forEach(l => {
+                        if (l.url) {
+                            linksHtml += `<a href="${l.url}" target="_blank" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-semibold hover:bg-indigo-100 transition"><i data-lucide="link" class="w-2.5 h-2.5"></i> ${l.label || 'Reference'}</a>`;
+                        }
+                    });
+                    linksHtml += '</div>';
+                }
+
+                item.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3 overflow-hidden">
+                            <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleModuleCompletion(${m.module_id}, this.checked)" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer mt-0.5 shrink-0">
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <span class="text-xs font-bold text-slate-400">#${idx + 1}</span>
+                                    <h5 class="text-xs font-bold ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}">${m.title}</h5>
+                                    ${flagsHtml}
+                                </div>
+                                ${m.key_points ? `<p class="text-[11px] text-slate-500"><strong class="text-slate-700">Concepts:</strong> ${m.key_points}</p>` : ''}
+                                ${m.notes ? `<p class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg mt-1 font-mono">${m.notes}</p>` : ''}
+                                ${linksHtml}
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-1 shrink-0">
+                            <button onclick="openEditModuleModal(${m.module_id})" title="Edit Module" class="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteModule(${m.module_id})" title="Delete Module" class="p-1 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+            lucide.createIcons();
+        }
+
+        async function handleAddModuleSubmit(e) {
+            e.preventDefault();
+            const cid = document.getElementById('currentModuleCourseId').value;
+            const btn = document.getElementById('addModuleSubmitBtn');
+            const linkUrl = document.getElementById('newModuleLinkUrl').value.trim();
+            const linkLabel = document.getElementById('newModuleLinkLabel').value.trim();
+            const refLinks = linkUrl ? [{ label: linkLabel || 'Resource', url: linkUrl }] : [];
+
+            const payload = {
+                title: document.getElementById('newModuleTitleInput').value.trim(),
+                key_points: document.getElementById('newModuleKeyPointsInput').value.trim(),
+                notes: document.getElementById('newModuleNotesInput').value.trim(),
+                is_important: document.getElementById('newModuleImportantInput').checked,
+                is_weak: document.getElementById('newModuleWeakInput').checked,
+                reference_links: refLinks
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch(`/api/courses/${cid}/modules`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('Module added to course.');
+                    document.getElementById('newModuleTitleInput').value = '';
+                    document.getElementById('newModuleKeyPointsInput').value = '';
+                    document.getElementById('newModuleNotesInput').value = '';
+                    document.getElementById('newModuleLinkLabel').value = '';
+                    document.getElementById('newModuleLinkUrl').value = '';
+                    document.getElementById('newModuleImportantInput').checked = false;
+                    document.getElementById('newModuleWeakInput').checked = false;
+                    await reloadCourseModules(cid);
+                    refreshData();
+                }
+            });
+        }
+
+        async function toggleModuleCompletion(moduleId, isChecked) {
+            const res = await fetch(`/api/modules/${moduleId}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_completed: isChecked })
+            });
+            const data = await res.json();
+            if (data.success && data.module) {
+                showToast(isChecked ? 'Module completed! Course progress updated.' : 'Module marked incomplete.');
+                const cid = data.module.course_id;
+                await reloadCourseModules(cid);
+                refreshData();
+            }
+        }
+
+        async function openEditModuleModal(moduleId) {
+            const res = await fetch(`/api/modules/${moduleId}`);
+            if (!res.ok) return;
+            const m = await res.json();
+
+            document.getElementById('editModuleId').value = m.module_id;
+            document.getElementById('editModuleTitleInput').value = m.title;
+            document.getElementById('editModuleKeyPointsInput').value = m.key_points || '';
+            document.getElementById('editModuleNotesInput').value = m.notes || '';
+            document.getElementById('editModuleImportantInput').checked = !!m.is_important;
+            document.getElementById('editModuleWeakInput').checked = !!m.is_weak;
+
+            const firstLink = (m.reference_links && m.reference_links[0]) || {};
+            document.getElementById('editModuleLinkLabel').value = firstLink.label || '';
+            document.getElementById('editModuleLinkUrl').value = firstLink.url || '';
+
+            openModal('editModuleModal');
+        }
+
+        async function handleEditModuleSubmit(e) {
+            e.preventDefault();
+            const mid = document.getElementById('editModuleId').value;
+            const btn = document.getElementById('editModuleSubmitBtn');
+            const linkUrl = document.getElementById('editModuleLinkUrl').value.trim();
+            const linkLabel = document.getElementById('editModuleLinkLabel').value.trim();
+            const refLinks = linkUrl ? [{ label: linkLabel || 'Resource', url: linkUrl }] : [];
+
+            const payload = {
+                title: document.getElementById('editModuleTitleInput').value.trim(),
+                key_points: document.getElementById('editModuleKeyPointsInput').value.trim(),
+                notes: document.getElementById('editModuleNotesInput').value.trim(),
+                is_important: document.getElementById('editModuleImportantInput').checked,
+                is_weak: document.getElementById('editModuleWeakInput').checked,
+                reference_links: refLinks
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch(`/api/modules/${mid}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success && data.module) {
+                    closeModal('editModuleModal');
+                    showToast('Module updated.');
+                    await reloadCourseModules(data.module.course_id);
+                    refreshData();
+                }
+            });
+        }
+
+        async function deleteModule(moduleId) {
+            if (confirm('Delete this module? Course progress percentage will be recalculated.')) {
+                const res = await fetch(`/api/modules/${moduleId}`, { method: 'DELETE' });
+                const data = await res.json();
+                showToast('Module removed.');
+                if (data.course) {
+                    await reloadCourseModules(data.course.course_id);
+                }
+                refreshData();
+            }
+        }
+
+        // ========================================================
+        // EXAMS & PRIORITY REVISION CHECKLIST
+        // ========================================================
+
+        function renderExams(exams) {
+            const grid = document.getElementById('examsGrid');
+            const overviewList = document.getElementById('overviewExamsList');
+            const banner = document.getElementById('urgentExamBanner');
+            grid.innerHTML = '';
+            overviewList.innerHTML = '';
+
+            let urgentExamFound = null;
+
+            if (exams.length === 0) {
+                grid.innerHTML = `<div class="col-span-full p-8 text-center bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-xs font-semibold">No target exams scheduled. Click "+ Schedule Exam" to add one!</div>`;
+                overviewList.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No exams scheduled.</p>`;
+                banner.classList.add('hidden');
+                return;
+            }
+
+            exams.forEach(ex => {
+                const days = ex.days_left;
+                let colorClass = 'bg-slate-100 text-slate-700 border-slate-200';
+                if (ex.urgency_color === 'red') {
+                    colorClass = 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse';
+                    if (!urgentExamFound && days >= 0) urgentExamFound = ex;
+                } else if (ex.urgency_color === 'amber') {
+                    colorClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                    if (!urgentExamFound && days >= 0) urgentExamFound = ex;
+                } else if (ex.urgency_color === 'green') {
+                    colorClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                }
+
+                const revTotal = ex.revision_total || 0;
+                const revDone = ex.revision_done || 0;
+                const revPct = revTotal > 0 ? Math.round((revDone / revTotal) * 100) : 0;
+
+                // Card for Exams Tab
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-300 transition-all duration-200 space-y-4';
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-lg border ${platformBadgeColors[ex.platform] || platformBadgeColors['Other']}">${ex.platform}</span>
+                            <span class="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border ${colorClass}">
+                                ${ex.countdown_text}
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 leading-snug tracking-tight mb-1">${ex.exam_name}</h4>
+                        <p class="text-xs text-slate-500 font-medium mb-3">${ex.course_name}</p>
+
+                        <div class="flex items-center gap-3 text-xs text-slate-600 mb-3">
+                            <span class="flex items-center gap-1 font-semibold"><i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i> ${ex.exam_date}</span>
+                            ${ex.exam_time ? `<span class="flex items-center gap-1 font-medium text-slate-400"><i data-lucide="clock" class="w-3.5 h-3.5"></i> ${ex.exam_time}</span>` : ''}
+                        </div>
+
+                        <!-- Revision Progress Bar -->
+                        <div class="space-y-1.5 pt-1">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-500 font-medium">${revDone} of ${revTotal} topics revised</span>
+                                <span class="font-bold text-emerald-600">${revPct}%</span>
+                            </div>
+                            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                                <div class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: ${revPct}%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Action: Open What to Revise Checklist -->
+                        <div class="pt-3">
+                            <button onclick="openExamRevisionChecklist(${ex.exam_id})" class="w-full py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                                <i data-lucide="list-ordered" class="w-3.5 h-3.5"></i>
+                                <span>Open Revision Checklist</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                        <span class="text-[11px] text-slate-400 truncate">${ex.syllabus_notes || 'Full course scope'}</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="editExam(${ex.exam_id})" title="Edit Exam" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button>
+                            <button onclick="deleteExam(${ex.exam_id})" title="Delete Exam" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+
+                // Add to Overview List (up to 4)
+                if (overviewList.children.length < 4) {
+                    const oItem = document.createElement('div');
+                    oItem.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-xs hover:bg-slate-100/60 transition cursor-pointer';
+                    oItem.onclick = () => openExamRevisionChecklist(ex.exam_id);
+                    oItem.innerHTML = `
+                        <div class="overflow-hidden">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="font-bold text-slate-800 truncate">${ex.exam_name}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 truncate">${ex.course_name} • ${ex.exam_date}</p>
+                        </div>
+                        <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${colorClass} shrink-0 ml-2">
+                            ${ex.countdown_text}
+                        </span>
+                    `;
+                    overviewList.appendChild(oItem);
+                }
+            });
+
+            // Exam Alert Banner in Overview
+            if (urgentExamFound) {
+                banner.classList.remove('hidden');
+                document.getElementById('urgentExamTitle').innerText = `🚨 Exam Alert: ${urgentExamFound.exam_name} (${urgentExamFound.countdown_text})!`;
+                document.getElementById('urgentExamSub').innerText = `${urgentExamFound.course_name} is scheduled on ${urgentExamFound.exam_date}. Complete your priority revision checklist!`;
+            } else {
+                banner.classList.add('hidden');
+            }
+
+            lucide.createIcons();
+        }
+
+        async function openExamRevisionChecklist(examId) {
+            const res = await fetch(`/api/exams/${examId}/revision`);
+            if (!res.ok) return;
+            const data = await res.json();
+            const exam = data.exam;
+            const items = data.items;
+
+            document.getElementById('revisionExamTitle').innerText = `${exam.exam_name} — Priority Revision`;
+            document.getElementById('revisionExamCourseBadge').innerText = exam.course_name;
+            document.getElementById('revisionExamCountdownBadge').innerText = exam.days_left >= 0 ? `${exam.days_left} days left` : 'Passed';
+            document.getElementById('revisionSummaryPct').innerText = `${data.progress_percent}%`;
+            document.getElementById('revisionSummaryCount').innerText = `${data.revised_items} of ${data.total_items} topics revised`;
+            document.getElementById('revisionSummaryBar').style.width = `${data.progress_percent}%`;
+
+            const container = document.getElementById('revisionChecklistItemsContainer');
+            container.innerHTML = '';
+
+            if (items.length === 0) {
+                container.innerHTML = `<div class="p-6 text-center rounded-xl bg-slate-50 border border-dashed border-slate-200 text-slate-400 text-xs font-semibold">No modules attached to this exam. Add syllabus modules in the course catalog!</div>`;
+                openModal('examRevisionModal');
+                return;
+            }
+
+            items.forEach(it => {
+                const isRev = !!it.is_revised;
+                const el = document.createElement('div');
+                let priorityBorder = 'border-slate-200 bg-white';
+                let priorityBadge = '';
+
+                if (it.priority_rank === 1) {
+                    priorityBorder = 'border-amber-300 bg-amber-50/40';
+                    priorityBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-100 text-amber-800 border border-amber-300">⚠️ Priority 1: Weak Topic</span>';
+                } else if (it.priority_rank === 2) {
+                    priorityBorder = 'border-indigo-200 bg-indigo-50/30';
+                    priorityBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">⭐ Priority 2: Important</span>';
+                } else if (it.priority_rank === 3) {
+                    priorityBorder = 'border-slate-200 bg-slate-50/50';
+                    priorityBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">⏳ Incomplete</span>';
+                } else {
+                    priorityBadge = '<span class="px-2 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">Completed</span>';
+                }
+
+                el.className = `p-3 rounded-xl border transition space-y-1.5 ${priorityBorder} ${isRev ? 'opacity-60 line-through' : ''}`;
+                el.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-2.5 overflow-hidden">
+                            <input type="checkbox" ${isRev ? 'checked' : ''} onchange="toggleExamRevisionItem(${exam.exam_id}, ${it.module_id}, this.checked)" class="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer mt-0.5 shrink-0">
+                            <div class="overflow-hidden">
+                                <div class="flex items-center gap-2 flex-wrap mb-1">
+                                    <h5 class="text-xs font-bold text-slate-900">${it.title}</h5>
+                                    ${priorityBadge}
+                                </div>
+                                ${it.key_points ? `<p class="text-[11px] text-slate-500"><strong class="text-slate-700">Formulas / Points:</strong> ${it.key_points}</p>` : ''}
+                                ${it.notes ? `<p class="text-[11px] text-slate-600 font-mono bg-white/70 p-1.5 rounded mt-0.5">${it.notes}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+
+            openModal('examRevisionModal');
+            lucide.createIcons();
+        }
+
+        async function toggleExamRevisionItem(examId, moduleId, isChecked) {
+            const res = await fetch(`/api/exams/${examId}/revision/${moduleId}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_revised: isChecked })
+            });
+            const data = await res.json();
+            if (data.success && data.checklist) {
+                showToast(isChecked ? 'Topic marked revised! Keep going.' : 'Topic unmarked.');
+                document.getElementById('revisionSummaryPct').innerText = `${data.checklist.progress_percent}%`;
+                document.getElementById('revisionSummaryCount').innerText = `${data.checklist.revised_items} of ${data.checklist.total_items} topics revised`;
+                document.getElementById('revisionSummaryBar').style.width = `${data.checklist.progress_percent}%`;
+                refreshData();
+            }
+        }
+
+        async function populateExamModuleCheckboxes(courseId, selectedIds = []) {
+            const container = document.getElementById('examCoveredModulesContainer');
+            if (!courseId) {
+                container.innerHTML = '<p class="text-[11px] text-slate-400">Select a course to view modules.</p>';
+                return;
+            }
+            const res = await fetch(`/api/courses/${courseId}/modules`);
+            const data = await res.json();
+            const modules = data.modules || [];
+
+            if (modules.length === 0) {
+                container.innerHTML = '<p class="text-[11px] text-slate-400">No modules created for this course yet. All course topics will be covered by default.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            modules.forEach(m => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 text-xs text-slate-700 cursor-pointer p-1 rounded hover:bg-slate-100 transition';
+                const isChecked = selectedIds.length === 0 || selectedIds.includes(m.module_id);
+                label.innerHTML = `
+                    <input type="checkbox" name="examCoveredModule" value="${m.module_id}" ${isChecked ? 'checked' : ''} class="w-3.5 h-3.5 rounded text-indigo-600 focus:ring-indigo-500">
+                    <span class="truncate">${m.title} ${m.is_weak ? '⚠️' : ''} ${m.is_important ? '⭐' : ''}</span>
+                `;
+                container.appendChild(label);
+            });
+        }
+
+        async function handleExamSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitExamBtn');
+            const editId = document.getElementById('editExamId').value;
+            const cid = document.getElementById('examCourseSelect').value;
+
+            // Gather checked modules
+            const checkedBoxes = document.querySelectorAll('input[name="examCoveredModule"]:checked');
+            const coveredIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+            const payload = {
+                course_id: parseInt(cid),
+                exam_name: document.getElementById('examNameInput').value.trim(),
+                exam_date: document.getElementById('examDateInput').value,
+                exam_time: document.getElementById('examTimeInput').value.trim(),
+                syllabus_notes: document.getElementById('examSyllabusInput').value.trim(),
+                covered_module_ids: coveredIds
+            };
+
+            await runWithButton(btn, async () => {
+                if (editId) {
+                    await fetch(`/api/exams/${editId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    showToast('Exam updated.');
+                } else {
+                    await fetch('/api/exams', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    showToast('Exam scheduled with automated revision checklist.');
+                }
+
+                closeModal('addExamModal');
+                document.getElementById('examForm').reset();
+                document.getElementById('editExamId').value = '';
+                refreshData();
+            });
+        }
+
+        async function editExam(examId) {
+            const res = await fetch(`/api/exams/${examId}`);
+            if (!res.ok) return;
+            const ex = await res.json();
+
+            document.getElementById('editExamId').value = ex.exam_id;
+            document.getElementById('examModalTitle').innerText = 'Edit Target Exam';
+            document.getElementById('examCourseSelect').value = ex.course_id;
+            document.getElementById('examNameInput').value = ex.exam_name;
+            document.getElementById('examDateInput').value = ex.exam_date;
+            document.getElementById('examTimeInput').value = ex.exam_time || '';
+            document.getElementById('examSyllabusInput').value = ex.syllabus_notes || '';
+
+            await populateExamModuleCheckboxes(ex.course_id, ex.covered_module_ids || []);
+            openModal('addExamModal');
+        }
+
+        async function deleteExam(examId) {
+            if (confirm('Delete this scheduled exam and its revision checklist?')) {
+                await fetch(`/api/exams/${examId}`, { method: 'DELETE' });
+                showToast('Exam removed.');
+                refreshData();
+            }
+        }
+
+        // ========================================================
+        // DEADLINES & STUDY LOGS & CERTIFICATES CRUD
+        // ========================================================
+
+        function renderDeadlines(deadlines) {
+            const tbody = document.getElementById('deadlinesTableBody');
+            const overviewList = document.getElementById('overviewDeadlinesList');
+            const alertBanner = document.getElementById('urgentAlertBanner');
+            tbody.innerHTML = '';
+            overviewList.innerHTML = '';
+
+            let urgentCount = 0;
+
+            if (deadlines.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-semibold">No deadlines recorded yet. Click "+ Add Deadline".</td></tr>`;
+                overviewList.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No deadlines scheduled.</p>`;
+                alertBanner.classList.add('hidden');
+                return;
+            }
+
+            deadlines.forEach(d => {
+                const isDone = !!d.is_done;
+                const days = d.days_left;
+                let urgencyBadge = '';
+
+                if (isDone) {
+                    urgencyBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Completed</span>`;
+                } else if (days < 0) {
+                    urgencyBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Overdue by ${Math.abs(days)}d</span>`;
+                    urgentCount++;
+                } else if (days === 0) {
+                    urgencyBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse">🔥 Due Today</span>`;
+                    urgentCount++;
+                } else if (days <= 3) {
+                    urgencyBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">In ${days} days</span>`;
+                    urgentCount++;
+                } else {
+                    urgencyBadge = `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">${days} days left</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = `hover:bg-slate-50/70 transition ${isDone ? 'opacity-60 bg-slate-50/30' : ''}`;
+                tr.innerHTML = `
+                    <td class="py-3 px-5 text-center">
+                        <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleDeadline(${d.deadline_id}, this.checked)" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                    </td>
+                    <td class="py-3 px-5 font-bold ${isDone ? 'line-through text-slate-400' : 'text-slate-900'}">${d.task_name}</td>
+                    <td class="py-3 px-5 text-slate-600">${d.course_name}</td>
+                    <td class="py-3 px-5 font-medium text-slate-600">${d.due_date}</td>
+                    <td class="py-3 px-5">${urgencyBadge}</td>
+                    <td class="py-3 px-5 text-right">
+                        <button onclick="deleteDeadline(${d.deadline_id})" class="p-1 rounded text-slate-400 hover:text-rose-600 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                if (!isDone && overviewList.children.length < 4) {
+                    const oItem = document.createElement('div');
+                    oItem.className = 'flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-xs';
+                    oItem.innerHTML = `
+                        <div class="overflow-hidden">
+                            <h5 class="font-bold text-slate-800 truncate">${d.task_name}</h5>
+                            <p class="text-[11px] text-slate-400 truncate">${d.course_name} • Due ${d.due_date}</p>
+                        </div>
+                        <input type="checkbox" onchange="toggleDeadline(${d.deadline_id}, true)" class="w-4 h-4 rounded text-indigo-600 cursor-pointer shrink-0 ml-2">
+                    `;
+                    overviewList.appendChild(oItem);
+                }
+            });
+
+            if (urgentCount > 0) {
+                alertBanner.classList.remove('hidden');
+                document.getElementById('urgentAlertTitle').innerText = `${urgentCount} Urgent or Overdue Assignment(s)!`;
+            } else {
+                alertBanner.classList.add('hidden');
+            }
+
+            lucide.createIcons();
+        }
+
+        async function handleDeadlineSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitDeadlineBtn');
+            const payload = {
+                course_id: document.getElementById('deadlineCourseSelect').value,
+                task_name: document.getElementById('deadlineTaskInput').value.trim(),
+                due_date: document.getElementById('deadlineDateInput').value
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch('/api/deadlines', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeModal('addDeadlineModal');
+                    document.getElementById('deadlineTaskInput').value = '';
+                    showToast('Deadline added.');
+                    refreshData();
+                } else {
+                    alert(data.error || 'Failed to add deadline.');
+                }
+            });
+        }
+
+        async function toggleDeadline(did, isChecked) {
+            await fetch(`/api/deadlines/${did}/toggle`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_done: isChecked })
+            });
+            showToast(isChecked ? 'Task marked complete! 🎉' : 'Task marked pending.');
+            refreshData();
+        }
+
+        async function deleteDeadline(did) {
+            if (confirm('Delete this deadline?')) {
+                await fetch(`/api/deadlines/${did}`, { method: 'DELETE' });
+                showToast('Deadline removed.');
+                refreshData();
+            }
+        }
+
+        function renderStudyLogs(logs) {
+            const tbody = document.getElementById('studyLogsTableBody');
+            tbody.innerHTML = '';
+
+            if (logs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 font-semibold">No study hours logged yet. Click "Record Session" above.</td></tr>`;
+                return;
+            }
+
+            logs.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/70 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-5 font-semibold text-slate-700">${l.study_date}</td>
+                    <td class="py-3 px-5 font-bold text-slate-900">${l.course_name}</td>
+                    <td class="py-3 px-5"><span class="text-[10px] font-bold px-2 py-0.5 rounded-md border ${platformBadgeColors[l.platform] || platformBadgeColors['Other']}">${l.platform}</span></td>
+                    <td class="py-3 px-5 font-bold text-indigo-600">${parseFloat(l.hours_spent).toFixed(1)} hrs</td>
+                    <td class="py-3 px-5 text-slate-600">${l.topic_covered || '—'}</td>
+                    <td class="py-3 px-5 text-right">
+                        <button onclick="deleteStudyLog(${l.log_id})" class="p-1 rounded text-slate-400 hover:text-rose-600 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        async function handleStudyLogSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitStudyLogBtn');
+            const payload = {
+                course_id: document.getElementById('logCourseSelect').value,
+                study_date: document.getElementById('logDateInput').value,
+                hours_spent: document.getElementById('logHoursInput').value,
+                topic_covered: document.getElementById('logTopicInput').value.trim()
+            };
+
+            await runWithButton(btn, async () => {
+                const res = await fetch('/api/study-logs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    closeModal('logHoursModal');
+                    document.getElementById('logTopicInput').value = '';
+                    showToast(`Recorded ${payload.hours_spent} hours of study.`);
+                    refreshData();
+                } else {
+                    alert(data.error || 'Failed to record session.');
+                }
+            });
+        }
+
+        async function deleteStudyLog(lid) {
+            if (confirm('Delete this study log entry?')) {
+                await fetch(`/api/study-logs/${lid}`, { method: 'DELETE' });
+                showToast('Study log deleted.');
+                refreshData();
+            }
+        }
+
+        function renderCertificates(certs) {
+            const list = document.getElementById('certificatesList');
+            list.innerHTML = '';
+
+            if (certs.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">No certificates saved yet. Add your verified completion links!</p>`;
+                return;
+            }
+
+            certs.forEach(cert => {
+                const card = document.createElement('div');
+                card.className = 'p-3.5 rounded-xl bg-slate-50 border border-slate-200/60 flex items-center justify-between text-xs hover:bg-slate-100/60 transition';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i data-lucide="award" class="w-4 h-4"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h5 class="font-bold text-slate-800 truncate">${cert.course_name}</h5>
+                            <p class="text-[11px] text-slate-400 truncate">${cert.platform} • ${cert.grade || 'Completed'}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a href="${cert.certificate_link}" target="_blank" class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 font-semibold flex items-center gap-1 transition">
+                            <span>View</span> <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a>
+                        <button onclick="deleteCert(${cert.cert_id})" class="p-1 text-slate-400 hover:text-rose-600 transition">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        async function handleCertSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitCertBtn');
+            const payload = {
+                course_id: document.getElementById('certCourseSelect').value,
+                certificate_link: document.getElementById('certUrlInput').value.trim(),
+                issue_date: document.getElementById('certDateInput').value,
+                grade: document.getElementById('certGradeInput').value.trim()
+            };
+
+            await runWithButton(btn, async () => {
+                await fetch('/api/certificates', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                closeModal('addCertModal');
+                document.getElementById('certUrlInput').value = '';
+                showToast('Certificate added to credentials.');
+                refreshData();
+            });
+        }
+
+        async function deleteCert(certId) {
+            if (confirm('Remove this certificate link?')) {
+                await fetch(`/api/certificates/${certId}`, { method: 'DELETE' });
+                showToast('Certificate removed.');
+                refreshData();
+            }
+        }
+
+        // ========================================================
+        // COURSE CRUD & NOTES
+        // ========================================================
+
+        async function handleCourseSubmit(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitCourseBtn');
+            const editId = document.getElementById('editCourseId').value;
+            const payload = {
+                course_name: document.getElementById('courseNameInput').value.trim(),
+                platform: document.getElementById('coursePlatformInput').value,
+                instructor: document.getElementById('courseInstructorInput').value.trim(),
+                start_date: document.getElementById('courseStartDateInput').value,
+                end_date: document.getElementById('courseEndDateInput').value,
+                status: document.getElementById('courseStatusInput').value,
+                priority: document.getElementById('coursePriorityInput').value,
+                course_link: document.getElementById('courseLinkInput').value.trim(),
+                notes: document.getElementById('courseNotesInput').value.trim()
+            };
+
+            await runWithButton(btn, async () => {
+                if (editId) {
+                    const res = await fetch(`/api/courses/${editId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { alert(data.error || 'Failed to update course'); return; }
+                    showToast(`Course "${payload.course_name}" updated.`);
+                } else {
+                    const res = await fetch('/api/courses', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) { alert(data.error || 'Failed to create course'); return; }
+                    showToast(`Course "${payload.course_name}" added.`);
+                }
+
+                closeModal('addCourseModal');
+                document.getElementById('courseForm').reset();
+                document.getElementById('editCourseId').value = '';
+                refreshData();
+            });
+        }
+
+        function editCourse(cid) {
+            const course = coursesCache.find(c => c.course_id == cid);
+            if (!course) return;
+
+            document.getElementById('editCourseId').value = course.course_id;
+            document.getElementById('courseModalTitle').innerText = 'Edit Course';
+            document.getElementById('courseNameInput').value = course.course_name;
+            document.getElementById('coursePlatformInput').value = course.platform;
+            document.getElementById('courseInstructorInput').value = course.instructor || '';
+            document.getElementById('courseStartDateInput').value = course.start_date || '';
+            document.getElementById('courseEndDateInput').value = course.end_date || '';
+            document.getElementById('coursePriorityInput').value = course.priority || 'Medium';
+            document.getElementById('courseStatusInput').value = course.status || 'Not Started';
+            document.getElementById('courseLinkInput').value = course.course_link || '';
+            document.getElementById('courseNotesInput').value = course.notes || '';
+
+            openModal('addCourseModal');
+        }
+
+        async function deleteCourse(cid, name) {
+            if (confirm(`Are you sure you want to delete course "${name}"? All associated modules, logs, exams, and deadlines will be deleted.`)) {
+                await fetch(`/api/courses/${cid}`, { method: 'DELETE' });
+                showToast('Course deleted.');
+                refreshData();
+            }
+        }
+
+        function populateCourseDropdowns(courses) {
+            const selectors = ['logCourseSelect', 'deadlineCourseSelect', 'certCourseSelect', 'notesCourseSelect', 'examCourseSelect'];
+            selectors.forEach(id => {
+                const select = document.getElementById(id);
+                if (!select) return;
+                const prevVal = select.value;
+                select.innerHTML = '';
+                courses.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.course_id;
+                    opt.innerText = `${c.course_name} (${c.platform})`;
+                    select.appendChild(opt);
+                });
+                if (prevVal) select.value = prevVal;
+            });
+
+            // Initial load notes if not selected
+            const notesSelect = document.getElementById('notesCourseSelect');
+            if (notesSelect && notesSelect.value) {
+                loadCourseNotes(notesSelect.value);
+            }
+
+            // Also update exam module checkboxes if examCourseSelect is visible
+            const examSelect = document.getElementById('examCourseSelect');
+            if (examSelect && examSelect.value) {
+                populateExamModuleCheckboxes(examSelect.value);
+            }
+        }
+
+        function loadCourseNotes(courseId) {
+            const course = coursesCache.find(c => c.course_id == courseId);
+            document.getElementById('courseNotesEditor').value = (course && course.notes) ? course.notes : '';
+        }
+
+        async function saveSelectedCourseNotes() {
+            const cid = document.getElementById('notesCourseSelect').value;
+            const course = coursesCache.find(c => c.course_id == cid);
+            if (!course) return;
+
+            const notes = document.getElementById('courseNotesEditor').value.trim();
+            course.notes = notes;
+
+            await fetch(`/api/courses/${cid}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(course)
+            });
+            showToast('Course notes saved.');
+        }
+
+        // ========================================================
+        // INTERACTIVE CHARTS (Chart.js)
+        // ========================================================
+
+        async function fetchChartData() {
+            const res = await fetch('/api/analytics/charts');
+            if (!res.ok) return { hours_per_course: { labels: [], values: [] }, status_distribution: { labels: [], values: [] }, study_trend: { labels: [], values: [] }, platform_breakdown: { labels: [], values: [] } };
+            return await res.json();
+        }
+
+        async function renderOverviewCharts() {
+            const data = await fetchChartData();
+
+            // 1. Overview Hours Chart
+            if (chartInstances['overviewHours']) chartInstances['overviewHours'].destroy();
+            const ctx1 = document.getElementById('overviewHoursChart');
+            if (ctx1) {
+                chartInstances['overviewHours'] = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: data.hours_per_course.labels.slice(0, 5),
+                        datasets: [{
+                            label: 'Hours',
+                            data: data.hours_per_course.values.slice(0, 5),
+                            backgroundColor: '#4F46E5',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { grid: { display: false } }, y: { grid: { display: false } } }
+                    }
+                });
+            }
+
+            // 2. Overview Status Donut Chart
+            if (chartInstances['overviewStatus']) chartInstances['overviewStatus'].destroy();
+            const ctx2 = document.getElementById('overviewStatusChart');
+            if (ctx2) {
+                chartInstances['overviewStatus'] = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_distribution.labels.length ? data.status_distribution.labels : ['No Courses'],
+                        datasets: [{
+                            data: data.status_distribution.values.length ? data.status_distribution.values : [1],
+                            backgroundColor: data.status_distribution.values.length ? ['#10B981', '#4F46E5', '#94A3B8', '#F59E0B'] : ['#E2E8F0'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+        }
+
+        async function renderAllCharts() {
+            const data = await fetchChartData();
+
+            // Analytics Tab: Hours Bar Chart
+            if (chartInstances['analyticsHours']) chartInstances['analyticsHours'].destroy();
+            const c1 = document.getElementById('analyticsHoursChart');
+            if (c1) {
+                chartInstances['analyticsHours'] = new Chart(c1, {
+                    type: 'bar',
+                    data: {
+                        labels: data.hours_per_course.labels,
+                        datasets: [{
+                            label: 'Hours Spent',
+                            data: data.hours_per_course.values,
+                            backgroundColor: '#6366F1',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Analytics Tab: Status Donut
+            if (chartInstances['analyticsStatus']) chartInstances['analyticsStatus'].destroy();
+            const c2 = document.getElementById('analyticsStatusChart');
+            if (c2) {
+                chartInstances['analyticsStatus'] = new Chart(c2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.status_distribution.labels.length ? data.status_distribution.labels : ['No Courses'],
+                        datasets: [{
+                            data: data.status_distribution.values.length ? data.status_distribution.values : [1],
+                            backgroundColor: data.status_distribution.values.length ? ['#10B981', '#6366F1', '#94A3B8', '#F59E0B'] : ['#E2E8F0'],
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom' } },
+                        cutout: '62%'
+                    }
+                });
+            }
+
+            // Analytics Tab: Trend Line
+            if (chartInstances['analyticsTrend']) chartInstances['analyticsTrend'].destroy();
+            const c3 = document.getElementById('analyticsTrendChart');
+            if (c3) {
+                chartInstances['analyticsTrend'] = new Chart(c3, {
+                    type: 'line',
+                    data: {
+                        labels: data.study_trend.labels,
+                        datasets: [{
+                            label: 'Study Hours',
+                            data: data.study_trend.values,
+                            borderColor: '#8B5CF6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                            tension: 0.35,
+                            fill: true,
+                            pointBackgroundColor: '#8B5CF6'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+
+            // Analytics Tab: Platform Bar
+            if (chartInstances['analyticsPlatform']) chartInstances['analyticsPlatform'].destroy();
+            const c4 = document.getElementById('analyticsPlatformChart');
+            if (c4) {
+                chartInstances['analyticsPlatform'] = new Chart(c4, {
+                    type: 'bar',
+                    data: {
+                        labels: data.platform_breakdown.labels,
+                        datasets: [{
+                            label: 'Courses',
+                            data: data.platform_breakdown.values,
+                            backgroundColor: ['#3B82F6', '#8B5CF6', '#F59E0B', '#EF4444', '#10B981'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/'/g, "\'").replace(/"/g, '&quot;');
+        }
+    </script>
+</body>
+</html>
